@@ -91,17 +91,40 @@ unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned cha
                           unsigned int src_port, unsigned int dest_port, unsigned int maximum_hop_count,
                           unsigned int compression_scheme, unsigned int traffic_class)
 {
-    (void)array;
-    (void)array_len;
-    (void)packets;
-    (void)packets_len;
-    (void)max_payload;
-    (void)src_addr;
-    (void)dest_addr;
-    (void)src_port;
-    (void)dest_port;
-    (void)maximum_hop_count;
-    (void)compression_scheme;
-    (void)traffic_class;
-    return -1;
+    int packets_created = 0;
+
+
+
+    for (int i = 0; i < packets_len; i++) {
+
+        int packet_payload_size;
+
+        if ((i == packets_len - 1) && (array_len < packets_len*(max_payload/4))) {
+            packet_payload_size = array_len*4 - (packets_len-1)*(max_payload);
+        }
+        else {
+            packet_payload_size = max_payload;
+        }
+        int packet_length = 16+packet_payload_size;
+        int fragment_offset = i*max_payload;
+        packets[i] = malloc(packet_length);
+        packets[i][0] = src_addr >> 20;
+        packets[i][1] = (src_addr >> 12) & 0xff;
+        packets[i][2] = (src_addr >> 4) & 0xff;
+        packets[i][3] = ((src_addr & 0x0f) << 4) | (dest_addr >> 24);
+        packets[i][4] = (dest_addr >> 16) & 0xff;
+        packets[i][5] = (dest_addr >> 8) & 0xff;
+        packets[i][6] = dest_addr & 0xff;
+        packets[i][7] = (src_port << 4) | dest_port;
+        packets[i][8] = fragment_offset >> 6;
+        packets[i][9] = ((fragment_offset & 0x3f) << 2) | (packet_length >> 12);
+
+        //packets[i][11] = pckt_length | (maximum_hop_count >> 1);
+        // packets[i][12] = ((maximum_hop_count & 0x01) << 7) | checksum;
+
+        packets[i][15] = ((compression_scheme & 0x03) << 6) | traffic_class;
+
+        packets_created++;
+    }
+    return packets_created;
 }
