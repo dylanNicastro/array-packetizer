@@ -57,8 +57,12 @@ void print_packet_sf(unsigned char packet[])
 
 unsigned int compute_checksum_sf(unsigned char packet[])
 {
-    (void)packet;
-    return -1;
+    int sum = getSourceAddress(packet)+getDestAddress(packet)+getSourcePort(packet)+getDestPort(packet)+getFragmentOffset(packet)+getPacketLength(packet)+getMaxHopCount(packet)+getCompScheme(packet)+getTrafficClass(packet);
+    for (int i = 16; i < getPacketLength(packet); i = i + 4) {
+        sum = sum + abs((packet[i] << 24) | (packet[i+1] << 16) | (packet[i+2] << 8) | packet[i+3]);
+    }
+    int checksum = sum % 0x7fffff;
+    return checksum;
 }
 
 unsigned int reconstruct_array_sf(unsigned char *packets[], unsigned int packets_len, int *array, unsigned int array_len) {
