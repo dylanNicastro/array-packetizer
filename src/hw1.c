@@ -66,11 +66,25 @@ unsigned int compute_checksum_sf(unsigned char packet[])
 }
 
 unsigned int reconstruct_array_sf(unsigned char *packets[], unsigned int packets_len, int *array, unsigned int array_len) {
-    (void)packets;
-    (void)packets_len;
-    (void)array;
-    (void)array_len;
-    return -1;
+    printf("Size: %d\n",packets_len);
+    for (int i = 0; i < packets_len; i++) {
+        unsigned char **currentPacket = (packets + i);
+
+        int packetSize = getPacketLength(*currentPacket);
+        printf("Packet length of packet %d: %d\n", i, packetSize);
+
+        printf("10th hex of packet: %d\n", *((*currentPacket) + 9));
+
+        int startIndex = getFragmentOffset(*currentPacket)/4;
+        printf("Integer offset: %d\n", startIndex);
+
+        
+        for (int j = 16; j < packetSize; j = j + 4) {
+            unsigned int payload = (*((*currentPacket) + j) << 24) | (*((*currentPacket) + j + 1) << 16) | (*((*currentPacket) + j + 2) << 8) | *((*currentPacket) + j + 3);
+            printf("Payload Integer %d: %d\n", (j-16)/4, payload);
+        }
+        printf("\n");
+    }
 }
 
 unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned char *packets[], unsigned int packets_len,
