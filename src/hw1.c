@@ -92,13 +92,9 @@ unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned cha
                           unsigned int compression_scheme, unsigned int traffic_class)
 {
     int packets_created = 0;
-
-
-
+    int k = 0;
     for (int i = 0; i < packets_len; i++) {
-
         int packet_payload_size;
-
         if ((i == packets_len - 1) && (array_len < packets_len*(max_payload/4))) {
             packet_payload_size = array_len*4 - (packets_len-1)*(max_payload);
         }
@@ -121,20 +117,16 @@ unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned cha
         packets[i][10] = (packet_length >> 4) & 0xff;
         packets[i][11] = ((packet_length & 0x0f) << 4) | (maximum_hop_count >> 1);
         packets[i][12] = ((maximum_hop_count & 0x01) << 7);
-
         packets[i][15] = ((compression_scheme & 0x03) << 6) | traffic_class;
-
-        int currentPayload;
-        int k = 16;
         for (int j = 16; j < packet_length; j = j + 4) {
-            packets[i][k] = (array[j] << 24) | (array[j+1] << 16) | (array[j+2] << 8) | array[j+3];
+            packets[i][j] = array[k] >> 24;
+            packets[i][j+1] = (array[k] >> 16) & 0xff;
+            packets[i][j+2] = (array[k] >> 8) & 0xff;
+            packets[i][j+3] = array[k] & 0xff;
             k++;
         }
-
         packets_created++;
-
-        int checksum = compute_checksum_sf(packets[i]);
-
+        unsigned int checksum = compute_checksum_sf(packets[i]);
         packets[i][12] = packets[i][12] | (checksum >> 16);
         packets[i][13] = (checksum >> 8) & 0xff;
         packets[i][14] = checksum & 0xff;
