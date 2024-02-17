@@ -98,6 +98,7 @@ unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned cha
     while (packets_needed < exact_needed && packets_needed < packets_len) {
         packets_needed++;
     }
+    printf("Packets needed: %f\nPackets expected: %f\nPackets[] length: %d\n",exact_needed,packets_needed,packets_len);
     for (int i = 0; i < packets_needed; i++) {
             int packet_payload_size;
             if ((i == packets_len - 1) && (array_len < packets_len*(max_payload/4))) {
