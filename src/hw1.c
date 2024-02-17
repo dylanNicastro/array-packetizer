@@ -97,10 +97,13 @@ unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned cha
     double packets_needed = 0.0;
     double exact_needed = array_len/(max_payload/4);
     while (packets_needed < exact_needed) {
-        packets_needed = packets_needed + max_payload/4;
+        packets_needed++;
     }
-    for (int i = 0; i < packets_len; i++) {
-        if (i <= packets_needed) {
+    packets_needed++;
+    if (packets_needed > packets_len) {
+        packets_needed = packets_len;
+    }
+    for (int i = 0; i < packets_needed; i++) {
             int packet_payload_size;
             if ((i == packets_len - 1) && (array_len < packets_len*(max_payload/4))) {
                 packet_payload_size = array_len*4 - (packets_len-1)*(max_payload);
@@ -137,7 +140,6 @@ unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned cha
             packets[i][12] = packets[i][12] | (checksum >> 16);
             packets[i][13] = (checksum >> 8) & 0xff;
             packets[i][14] = checksum & 0xff;
-        }
     }
     return packets_created;
 }
