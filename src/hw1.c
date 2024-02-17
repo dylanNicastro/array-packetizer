@@ -93,15 +93,10 @@ unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned cha
 {
     int packets_created = 0;
     int k = 0;
-    int p = 0;
     double packets_needed = 0.0;
-    double exact_needed = array_len/(max_payload/4);
-    while (packets_needed < exact_needed) {
+    double exact_needed = array_len/(max_payload/4)+1;
+    while (packets_needed < exact_needed && packets_needed < packets_len) {
         packets_needed++;
-    }
-    packets_needed++;
-    if (packets_needed > packets_len) {
-        packets_needed = packets_len;
     }
     for (int i = 0; i < packets_needed; i++) {
             int packet_payload_size;
