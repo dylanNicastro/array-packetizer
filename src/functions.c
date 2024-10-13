@@ -1,6 +1,6 @@
-#include "hw1.h"
 #include <math.h>
 
+// Helper functions
 int getSourceAddress(unsigned char packet[]) {
     int sourceAddress = (packet[0] << 20) | (packet[1] << 12) | (packet[2] << 4) | (packet[3] >> 4);
     return sourceAddress;
@@ -42,6 +42,7 @@ char getTrafficClass(unsigned char packet[]) {
     return trafficClass;
 }
 
+// Print the packet data with the help of the helper functions
 void print_packet_sf(unsigned char packet[])
 {
     int packetSize = getPacketLength(packet);
@@ -55,6 +56,7 @@ void print_packet_sf(unsigned char packet[])
     printf("\n");
 }
 
+// Calculate the checksum to make sure the packet is not corrupted
 unsigned int compute_checksum_sf(unsigned char packet[])
 {
     unsigned int sum = getSourceAddress(packet)+getDestAddress(packet)+getSourcePort(packet)+getDestPort(packet)+getFragmentOffset(packet)+getPacketLength(packet)+getMaxHopCount(packet)+getCompScheme(packet)+getTrafficClass(packet);
@@ -65,6 +67,8 @@ unsigned int compute_checksum_sf(unsigned char packet[])
     return checksum;
 }
 
+
+// Reconstruct the original array from the packets
 unsigned int reconstruct_array_sf(unsigned char *packets[], unsigned int packets_len, int *array, unsigned int array_len) {
     int success = 0;
     for (int i = 0; i < packets_len; i++) {
@@ -86,6 +90,7 @@ unsigned int reconstruct_array_sf(unsigned char *packets[], unsigned int packets
     return success;
 }
 
+// Construct packets from an array
 unsigned int packetize_array_sf(int *array, unsigned int array_len, unsigned char *packets[], unsigned int packets_len,
                           unsigned int max_payload, unsigned int src_addr, unsigned int dest_addr,
                           unsigned int src_port, unsigned int dest_port, unsigned int maximum_hop_count,
